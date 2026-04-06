@@ -1,5 +1,5 @@
 import os
-import config
+from google.genai import types
 
 def write_file(working_directory, file_path, content):
     try:
@@ -30,3 +30,21 @@ def write_file(working_directory, file_path, content):
     except Exception as e:
         print(f"Error encountered: {e}")
     
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description="Write to a file the content specified by the user",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="File path of the specified file the user wants to write its content",
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="Content the user wants to see written to the specified file",
+            ),
+        },
+        required =["file_path", "content"]
+    ),
+)
