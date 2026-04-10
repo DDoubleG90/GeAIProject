@@ -42,13 +42,11 @@ def generate_content(client, messages, verbose):
         if verbose:
             print("Prompt tokens:", response.usage_metadata.prompt_token_count)
             print("Response tokens:", response.usage_metadata.candidates_token_count)
-        print("Response:")
         
-        messages_list = []
-        if response.candidates:
-            for candidate in response.candidates:
-                messages_list.append(candidate.content)
-                messages_list.append(types.Content(role="user", parts=list_of_function_results))
+        
+        list_of_function_results = []
+        
+
 
         if response.function_calls != None:
             for func in response.function_calls:
@@ -60,19 +58,26 @@ def generate_content(client, messages, verbose):
                 if function_call_result.parts[0].function_response.response is None:
                     raise Exception("The function response is none.")
                 
-                list_of_function_results = []
+                
                 list_of_function_results.append(function_call_result.parts[0])
                 
+                print("Final response:")
                 if verbose: print(f"-> {function_call_result.parts[0].function_response.response}")
-
         else:
             print(response.text)
-            if i == 19:
-                print("The maximum number of iterations was reached without a final response")
-                sys.exit(1)
-        
-        i += 1
+            break
 
+        if response.candidates:
+            for candidate in response.candidates:
+                messages.append(candidate.content)
+            messages.append(types.Content(role="user", parts=list_of_function_results))
+
+
+
+    else:
+        print("The maximum number of iterations was reached without a final response")
+        sys.exit(1)
+            
         
 
 if __name__ == "__main__":
